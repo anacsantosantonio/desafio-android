@@ -5,16 +5,17 @@ import com.google.gson.GsonBuilder
 import com.picpay.desafio.android.data.UserRepository
 import com.picpay.desafio.android.data.UserRepositoryImpl
 import com.picpay.desafio.android.data.network.PicPayService
+import okhttp3.Cache
+import okhttp3.OkHttpClient
 import org.koin.core.component.KoinComponent
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.io.File
 
 val dataModule = module {
     single<UserRepository> { UserRepositoryImpl(get()) }
-
-
 }
 
 class PicPayServiceFactory : KoinComponent {
@@ -22,8 +23,15 @@ class PicPayServiceFactory : KoinComponent {
 
     private val gson: Gson by lazy { GsonBuilder().create() }
 
+    val cacheSize = (10 * 1021 * 1024).toLong() // 10MB
+    val cache = Cache(File("cacheDir"), cacheSize)
+    val okHttpClient = OkHttpClient.Builder()
+        .cache(cache)
+        .build()
+
     private val retrofit: Retrofit = Retrofit.Builder()
         .addConverterFactory(GsonConverterFactory.create(gson))
+        .client(okHttpClient)
         .baseUrl(baseUrl)
         .build()
 
@@ -32,6 +40,4 @@ class PicPayServiceFactory : KoinComponent {
             single { retrofit.create(PicPayService::class.java) }
         }
     }
-
-
 }

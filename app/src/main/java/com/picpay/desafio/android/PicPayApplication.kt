@@ -1,6 +1,7 @@
 package com.picpay.desafio.android
 
 import android.app.Application
+import com.picpay.desafio.android.data.database.di.databaseModule
 import com.picpay.desafio.android.data.di.PicPayServiceFactory
 import com.picpay.desafio.android.data.di.dataModule
 import com.picpay.desafio.android.ui.di.appModule
@@ -14,7 +15,7 @@ class PicPayApplication : Application() {
 
         startKoin {
             androidContext(this@PicPayApplication)
-            modules(appModule, dataModule, PicPayServiceFactory().picPayServiceModule())
+            modules(appModule, dataModule, PicPayServiceFactory().picPayServiceModule(), databaseModule)
         }
     }
 }

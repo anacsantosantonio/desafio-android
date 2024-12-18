@@ -6,8 +6,8 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class User(
-    @SerializedName("img") val img: String,
-    @SerializedName("name") val name: String,
     @SerializedName("id") val id: Int,
-    @SerializedName("username") val username: String
+    @SerializedName("username") val username: String,
+    @SerializedName("name") val name: String,
+    @SerializedName("img") val img: String?
 ) : Parcelable
