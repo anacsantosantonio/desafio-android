@@ -1,4 +1,4 @@
-package com.picpay.desafio.android.ui
+package com.picpay.desafio.android.ui.contacts
 
 import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
@@ -20,7 +20,7 @@ import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-class MainActivityViewModel : ViewModel(), KoinComponent {
+class ContactsViewModel : ViewModel(), KoinComponent {
 
     private val userRepository: UserRepository by inject()
     private val dispatcherProvider: DispatcherProvider by inject()

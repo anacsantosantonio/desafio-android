@@ -1,4 +1,4 @@
-package com.picpay.desafio.android.ui
+package com.picpay.desafio.android.ui.contacts
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -38,7 +38,7 @@ import com.picpay.desafio.android.R
 import com.picpay.desafio.android.data.model.UserUiData
 
 @Composable
-fun ContactsScreen(activityViewModel: MainActivityViewModel = viewModel()) {
+fun ContactsScreen(activityViewModel: ContactsViewModel = viewModel()) {
     val userList by activityViewModel.usersUiData.collectAsState()
     val isLoading by activityViewModel.isLoading.collectAsState()
 
