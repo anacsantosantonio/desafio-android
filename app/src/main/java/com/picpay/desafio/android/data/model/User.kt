@@ -1,4 +1,4 @@
-package com.picpay.desafio.android.domain
+package com.picpay.desafio.android.data.model
 
 import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
