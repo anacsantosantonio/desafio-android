@@ -11,6 +11,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.picpay.desafio.android.databinding.ActivityMainBinding
+import com.picpay.desafio.android.domain.User
+import com.picpay.desafio.android.presentation.UserListAdapter
 import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Callback
