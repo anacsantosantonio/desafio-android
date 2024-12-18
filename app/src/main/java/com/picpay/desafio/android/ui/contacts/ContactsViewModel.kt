@@ -28,15 +28,15 @@ class ContactsViewModel : ViewModel(), KoinComponent {
     private val dispatcherProvider: DispatcherProvider by inject()
     private val userDatabaseRepository: UserDatabaseRepository by inject()
 
-    private val users = MutableStateFlow(emptyList<User>())
+    internal val users = MutableStateFlow(emptyList<User>())
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> get() = _isLoading.asStateFlow()
 
     val usersUiData: StateFlow<List<UserUiData>> = users.map { users ->
         users.map { user ->
-            user.toUserUiData(getBitmapFromUrl(user.img))
-
+            val image = if (user.img != null) getBitmapFromUrl(user.img) else null
+            user.toUserUiData(image)
         }
     }.stateIn(
         viewModelScope,
@@ -48,7 +48,7 @@ class ContactsViewModel : ViewModel(), KoinComponent {
         UserEntity(user.id, user.username, user.name, user.img)
     }
 
-    private suspend fun getBitmapFromUrl(url: String?): Bitmap? {
+    private suspend fun getBitmapFromUrl(url: String): Bitmap? {
         return withContext(dispatcherProvider.IO) {
             Picasso.get().load(url).get()
         }
@@ -58,21 +58,52 @@ class ContactsViewModel : ViewModel(), KoinComponent {
         return UserUiData(id, username, name, imgBitmap)
     }
 
+    private fun List<UserEntity>.toUser(): List<User> = map { userEntity ->
+        User(userEntity.id, userEntity.username, userEntity.name, userEntity.img)
+    }
+
     fun getUsers() {
         viewModelScope.launch {
             try {
                 _isLoading.value = true
-                users.update { userRepository.getUsers() }
-                userDatabaseRepository.insert(users.value.toUserEntity())
+
+                val newUsers = userRepository.getUsers()
+
+                users.value = newUsers
+
+                addUsersToDatabase(newUsers)
+
                 _isLoading.value = false
             } catch (e: Exception) {
                 println("Error: ${e.message}")
-                users.update { userDatabaseRepository.getUsers().map { userEntity ->
-                    User(userEntity.id, userEntity.username, userEntity.name, userEntity.img)
-                } }
+                users.update { getUsersFromDatabase() }
                 _isLoading.value = false
             }
         }
     }
 
+    private suspend fun getUsersFromDatabase(): List<User> =
+        userDatabaseRepository.getUsers().toUser()
+
+    private fun addUsersToDatabase(newUsers: List<User>) {
+        viewModelScope.launch(dispatcherProvider.IO) {
+            val currentUsers = getUsersFromDatabase()
+
+            if (currentUsers.isNotEmpty()) {
+                if (currentUsers.size == newUsers.size &&
+                    currentUsers.containsAll(newUsers)
+                ) {
+                    return@launch
+                } else {
+                    insertUsersToDatabase(newUsers)
+                }
+            }
+        }
+    }
+
+    private fun insertUsersToDatabase(users: List<User>) {
+        viewModelScope.launch(dispatcherProvider.IO) {
+            userDatabaseRepository.insert(users.toUserEntity())
+        }
+    }
 }
